@@ -13,7 +13,9 @@ module.exports = {
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       colors: {
-        'btn-pink': '#AE0090'
+        'btn-pink': '#AE0090',
+        'alt-pink': '#F354A1',
+        'gray': '#E6E6E6'
       },
       scale: {
         '300': '3.00',
