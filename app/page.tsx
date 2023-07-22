@@ -13,15 +13,15 @@ export default function Home()
         <Image alt="logo" src="/logo.png" width={1048.51} height={203} className="drop-shadow-lg"/>
       </div>
       {/* Buttons */}
-      <div className="flex space-x-10">
+      <div className="flex md:flex-row flex-col md:space-x-10 md:space-y-0 space-y-5">
         <HomeButton name="SINGLE PLAYER">
-            <PersonIcon className="text-white text-[8rem]"/>
+          <PersonIcon className="text-white md:text-[8rem] text-[4rem]"/>
         </HomeButton>
         <HomeButton name="MULTIPLAYER">
-          <GroupsIcon className="text-white text-[8rem]"/>
+          <GroupsIcon className="text-white md:text-[8rem] text-[4rem]"/>
         </HomeButton>
         <HomeButton name="DAILY CHALLENGE">
-          <ExtensionIcon className="text-white text-[8rem]"/>
+          <ExtensionIcon className="text-white md:text-[8rem] text-[4rem]"/>
         </HomeButton>
       </div>
     </div>
