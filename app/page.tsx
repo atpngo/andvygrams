@@ -14,13 +14,13 @@ export default function Home()
       </div>
       {/* Buttons */}
       <div className="flex md:flex-row flex-col md:space-x-10 md:space-y-0 space-y-5">
-        <HomeButton name="SINGLE PLAYER">
-          <PersonIcon className="text-white md:text-[8rem] text-[4rem]"/>
+        <HomeButton name="SINGLE PLAYER" link="/singleplayer">
+            <PersonIcon className="text-white md:text-[8rem] text-[4rem]"/>
         </HomeButton>
-        <HomeButton name="MULTIPLAYER">
+        <HomeButton name="MULTIPLAYER" link="/singleplayer">
           <GroupsIcon className="text-white md:text-[8rem] text-[4rem]"/>
         </HomeButton>
-        <HomeButton name="DAILY CHALLENGE">
+        <HomeButton name="DAILY CHALLENGE" link="/singleplayer">
           <ExtensionIcon className="text-white md:text-[8rem] text-[4rem]"/>
         </HomeButton>
       </div>
