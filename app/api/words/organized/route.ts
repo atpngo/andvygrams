@@ -7,5 +7,3 @@ export async function GET(request: Request) {
     const data = await WordsList.findOne({description: "all"});
     return NextResponse.json(data)
 }
-
-// maybe: py script that calculates all partial anagrams
