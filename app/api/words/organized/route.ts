@@ -3,9 +3,9 @@ import connectMongo from "@/utils/connection"
 import WordsList from "@/models/wordsListModel";
 
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url)
-    const length = searchParams.get('length')
     await connectMongo();
-    const data = await WordsList.create({description: "meowwww", words: ["a", "b", "c"]});
+    const data = await WordsList.findOne({description: "all"});
     return NextResponse.json(data)
 }
+
+// maybe: py script that calculates all partial anagrams

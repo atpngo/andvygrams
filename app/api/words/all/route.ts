@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
+import connectMongo from "@/utils/connection"
+import WordsList from "@/models/wordsListModel";
 
 export async function GET(request: Request) {
-    return NextResponse.json({'text': 'YO MOMA'})
+    await connectMongo();
+    const data = await WordsList.findOne({description: "total"});
+    return NextResponse.json(data)
 }
