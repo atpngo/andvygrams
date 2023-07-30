@@ -8,7 +8,7 @@ type ContainerProps = {
 export default function Container({children} : ContainerProps)
 {
     return (
-        <div className="flex justify-center items-center w-[320px] h-full rounded-xl border-white border-8 bg-alt-pink text-white">
+        <div className="flex justify-center items-center w-[320px] h-max[200px] md:h-full rounded-xl border-white border-8 bg-alt-pink text-white">
             {children}
         </div>
     )

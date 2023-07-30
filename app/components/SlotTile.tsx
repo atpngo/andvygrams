@@ -10,7 +10,7 @@ export default function SlotTile({letter, removeFunction} : SlotTileProps)
     {
         return (
             <div
-                className="flex justify-center items-center text-white bg-alt-pink border-4 rounded-sm w-14 h-14 text-[40px] cursor-pointer"
+                className="flex justify-center items-center text-white bg-alt-pink border-4 rounded-sm w-14 h-14 text-[40px] cursor-pointer md:w-20 md:h-20 md:text-[60px]"
                 onClick={removeFunction}
             >
                 {letter}
@@ -19,7 +19,7 @@ export default function SlotTile({letter, removeFunction} : SlotTileProps)
     }
 
     return (
-        <div className="flex justify-center items-center text-white bg-gray border-4 rounded-sm w-14 h-14 text-[40px]">
+        <div className="flex justify-center items-center text-white bg-gray border-4 rounded-sm w-14 h-14 md:w-20 md:h-20">
             {letter}
         </div>
     )

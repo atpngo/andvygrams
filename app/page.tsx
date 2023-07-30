@@ -1,8 +1,6 @@
 import Image from "next/image";
 import HomeButton from "./components/HomeButton";
-import GroupsIcon from '@mui/icons-material/Groups'
-import PersonIcon from '@mui/icons-material/Person'
-import ExtensionIcon from '@mui/icons-material/Extension'
+import {BsPersonFill, BsFillPuzzleFill, BsPeopleFill} from "react-icons/bs"
 
 export default function Home()
 {
@@ -15,13 +13,13 @@ export default function Home()
       {/* Buttons */}
       <div className="flex md:flex-row flex-col md:space-x-10 md:space-y-0 space-y-5">
         <HomeButton name="SINGLE PLAYER" link="/singleplayer">
-            <PersonIcon className="text-white md:text-[8rem] text-[4rem]"/>
+          <BsPersonFill className="text-white text-[90px]"/>
         </HomeButton>
         <HomeButton name="MULTIPLAYER" link="/singleplayer">
-          <GroupsIcon className="text-white md:text-[8rem] text-[4rem]"/>
+          <BsPeopleFill className="text-white text-[90px]"/>
         </HomeButton>
         <HomeButton name="DAILY CHALLENGE" link="/singleplayer">
-          <ExtensionIcon className="text-white md:text-[8rem] text-[4rem]"/>
+          <BsFillPuzzleFill className="text-white text-[90px]"/>
         </HomeButton>
       </div>
     </div>

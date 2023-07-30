@@ -15,6 +15,8 @@ import { useSpring, animated } from "react-spring";
 import SpringModal from "../components/SpringModal";
 import Toast from "../components/Toast";
 import { AiOutlineCheckCircle } from "react-icons/ai";
+import Link from "next/link";
+import Loading from "../components/Loading";
 
 type AnimatedNumberProps = {
     current: number,
@@ -266,21 +268,19 @@ export default function Page()
     if (loading)
     {
         return (
-            <div>
-                Loading...
-            </div>
+            <Loading/>
         )
     }
 
     return (
         <div className="flex z-10 flex-col p-4 h-screen justify-center items-center justify-evenly" tabIndex={0}>
             <SpringModal open={open} handleClose={(event, reason) => {
-                if (reason !== "backdropClick")
+                if ((reason !== "backdropClick") && (reason !== "escapeKeyDown"))
                 {
                     setOpen(false)
                 }
             }}>
-                <div className="w-[90vw] h-[600px] max-w-[450px] text-center bg-alt-pink rounded-lg py-4 border-white border-4 text-white space-y-2">
+                <div className="w-[90vw] h-[600px] max-w-[450px] text-center bg-alt-pink rounded-lg py-4 border-white border-4 text-white space-y-2 focus:border-transparent focus:ring-0">
                     <p className="text-4xl">Solved Words</p>
                     <p className="text-2xl">Score: {points}</p>
                     <div className="flex flex-col overflow-auto h-[73%] px-4">
@@ -295,14 +295,25 @@ export default function Page()
                             )
                         })}
                     </div>
-                    <motion.button 
-                        className="text-2xl border-4 border-white p-2 px-4 bg-btn-pink rounded-lg "
-                        whileHover={{scale: 1.2}}
-                        whileTap={{scale: 1.1}}
-                        onClick={initializeGame}
-                    >
-                        Play Again
-                    </motion.button>
+                    <div className="flex w-full justify-evenly">
+                        <motion.button
+                            className="text-2xl border-4 border-white p-2 px-4 bg-green-500 rounded-lg "
+                            whileHover={{scale: 1.2}}
+                            whileTap={{scale: 1.1}}
+                            onClick={initializeGame}
+                        >
+                            Play Again
+                        </motion.button>
+                        <Link href="/">
+                            <motion.button
+                                className="text-2xl border-4 border-white p-2 px-4 bg-btn-pink rounded-lg "
+                                whileHover={{scale: 1.2}}
+                                whileTap={{scale: 1.1}}
+                            >
+                                Home Screen
+                            </motion.button>
+                        </Link>
+                    </div>
                 </div>
             </SpringModal>
 
@@ -326,31 +337,35 @@ export default function Page()
             </div>
             {/* ETC */}
             <div className="flex flex-col space-y-3 items-center">
-                {/* TIMER */}
-                <Container>
-                    <p className="-my-4 text-[80px]">0{Math.floor(seconds/60)}:{seconds < 10 && 0}{seconds%60}{(seconds%60 === 0 && seconds > 0) && 0}</p>
-                </Container>
-                {/* SCORE */}
-                <Container>
-                    <div className="flex flex-col text-center my-2">
-                        <div className="text-[40px] flex flex-row space-x-2">
-                            <p>SCORE:</p>
-                            <AnimatedNumber current={prevPoints} next={points}/>
+                <div className="space-y-4 md:flex md:flex-row md:h-max-[300px] md:space-y-0 md:space-x-4">
+                    {/* TIMER */}
+                    <Container>
+                        <p className="-my-4 text-[80px]">0{Math.floor(seconds/60)}:{seconds < 10 && 0}{seconds%60}{(seconds%60 === 0 && seconds > 0) && 0}</p>
+                    </Container>
+                    {/* SCORE */}
+                    <Container>
+                        <div className="flex flex-col text-center my-2">
+                            <div className="text-[40px] flex flex-row space-x-2">
+                                <p>SCORE:</p>
+                                <AnimatedNumber current={prevPoints} next={points}/>
+                            </div>
+                            <p className="text-[20px]">WORDS: {words}</p>
                         </div>
-                        <p className="text-[20px]">WORDS: {words}</p>
-                    </div>
-                </Container>
-                {/* SHUFFLE */}
-                <motion.div whileHover={{scale: 1.2}} whileTap={{scale: 1.1}} onClick={() => {
-                    let shuffled = shuffleArray(letters)
-                    setLetters(shuffled);
-                }}>
-                    <ShuffleIcon className="text-white text-[4rem]"/>
-                </motion.div>
-                {/* ENTER */}
-                <EnterButton isPressed={enterButtonPressed} onClick={() => {submitGuess()}}>
-                    <p className="text-[30px] px-4">ENTER</p>
-                </EnterButton>
+                    </Container>
+                </div>
+                <div className="flex flex-col justify-center items-center space-y-4">
+                    {/* SHUFFLE */}
+                    <motion.div whileHover={{scale: 1.2}} whileTap={{scale: 1.1}} onClick={() => {
+                        let shuffled = shuffleArray(letters)
+                        setLetters(shuffled);
+                    }}>
+                        <ShuffleIcon className="text-white text-[100    px]"/>
+                    </motion.div>
+                    {/* ENTER */}
+                    <EnterButton isPressed={enterButtonPressed} onClick={() => {submitGuess()}}>
+                        <p className="text-[30px] px-4">ENTER</p>
+                    </EnterButton>
+                </div>
             </div>
             {/* GAME */}
             <div className="flex flex-col space-y-2">

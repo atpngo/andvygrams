@@ -30,7 +30,7 @@ export default function Toast({show, setShow, children}: ToastProps)
                 animate={{scale: 1}}
                 transition={{duration: 0.25}}
                 exit={{scale: 0}}
-                className='fixed w-[200px] h-[45px] p-0 m-0'
+                className='fixed w-[200px] h-[45px] p-0 m-0 md:w-[300px] h-[100px]'
             >
                 {children}
             </motion.div>}

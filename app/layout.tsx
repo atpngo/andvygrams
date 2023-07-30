@@ -16,6 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <meta name="viewport" content="width=device-width, user-scalable=no"></meta>
       <body className={"stripe __className_30c698"}>
         {children}
       </body>
