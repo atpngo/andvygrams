@@ -13,6 +13,8 @@ import { useKeyDown } from "../hooks/useKeyDown";
 import { useKeyUp } from "../hooks/useKeyUp";
 import { useSpring, animated } from "react-spring"; 
 import SpringModal from "../components/SpringModal";
+import Toast from "../components/Toast";
+import { AiOutlineCheckCircle } from "react-icons/ai";
 
 type AnimatedNumberProps = {
     current: number,
@@ -61,9 +63,13 @@ export default function Page()
     const [states, setState] = useState([false, false, false, false, false, false]);
     const [game, setGame] = useState(false);
     const [open, setOpen] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [showCorrect, setShowCorrect] = useState(false);
+    const [latestWord, setLatestWord] = useState("");
 
-    const {seconds, start, pause, running, stop} = useTimer(() => {
+    const {seconds, start, stop} = useTimer((stop: () => void) => {
         setGame(false);
+        stop();
         setOpen(true);
         // window.alert("ALL DONE")
     }, 60)
@@ -82,6 +88,7 @@ export default function Page()
         setWords(0);
         setState([false, false, false, false, false, false]);
         setGame(false);
+        setLatestWord("");
 
         axios.get('/api/words/%20?length=6', {}).then(
             res => {
@@ -114,8 +121,10 @@ export default function Page()
             let options = answers[usedLetters.length];
             let word = usedLetters.join("");
             // TODO: error toast if you already solved this word
+            
             if (options.includes(word) && !solvedWords.includes(word))
             {
+                setLatestWord(word);
                 setPoints((prev) => {
                     setPrevPoints(prev);
                     return prev + REWARDED_POINTS[usedLetters.length];
@@ -128,6 +137,12 @@ export default function Page()
                     tmp.push(word)
                     return tmp;
                 })
+
+                setShowCorrect(true);
+            }
+            else 
+            {
+                setShowError(true);
             }
 
             // reset words
@@ -211,6 +226,7 @@ export default function Page()
             }
             if (key === "ENTER")
             {
+                console.log(solvedWords)
                 setEnterButtonPressed(true);
             }
 
@@ -289,6 +305,21 @@ export default function Page()
                     </motion.button>
                 </div>
             </SpringModal>
+
+            {/* Toasts */}
+            <Toast show={showError} setShow={setShowError}>
+                    <div className="bg-red-500 flex m-0 p-3 border-4 border-white rounded-lg text-center justify-center items-center gap-2">
+                        <AiOutlineCheckCircle size={30} className='text-white'/>
+                        <p className='text-xl text-white m-0 p-0'>Incorrect!</p>
+                    </div>
+            </Toast>
+            <Toast show={showCorrect} setShow={setShowCorrect}>
+                    <div className="bg-green-500 flex m-0 p-3 border-4 border-white rounded-lg text-center justify-center items-center gap-2">
+                        <AiOutlineCheckCircle size={30} className='text-white'/>
+                        <p className='text-xl text-white m-0 p-0'>{latestWord}</p>
+                    </div>
+            </Toast>
+            
             {/* LOGO */}
             <div>
                 <Image alt="logo" src="/logo.png" width={1000} height={20} className="drop-shadow-lg"/>
