@@ -1,7 +1,6 @@
 // returns random letter
 import { NextResponse } from "next/server";
 import connectMongo from "@/utils/connection"
-import WordsList from "@/models/wordsListModel";
 import Anagram from "@/models/anagramModel";
 
 export async function GET(request: Request) {
@@ -14,7 +13,6 @@ export async function GET(request: Request) {
         const randomNum = Math.floor(Math.random()*words.length);
         const randomWord = words[randomNum];
         return NextResponse.json({"word": randomWord, "answers": db[randomWord]})
-        
     }
     return NextResponse.json({error: '404'})
 }
