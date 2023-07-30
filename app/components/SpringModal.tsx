@@ -30,6 +30,8 @@ function SpringModal({open, handleClose, children}: SpringModalProps) {
   );
 }
 
+SpringModal.displayName = "SpringModal";
+
 const Backdrop = React.forwardRef<
   HTMLDivElement,
   { children: React.ReactElement; open: boolean }
