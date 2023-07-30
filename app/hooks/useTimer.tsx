@@ -22,7 +22,11 @@ export const useTimer = (
         {
             return seconds - 1;
         }
-        return seconds;
+        if (seconds == 0)
+        {
+            callback();
+        }
+        return 0;
     }) : undefined),
     [running]
   );
@@ -35,10 +39,6 @@ export const useTimer = (
   };
 
   use1Second(tick);
-  if (seconds === 0)
-  {
-    callback();
-  }
 
   return { pause, reset, running, seconds, start, stop };
 };

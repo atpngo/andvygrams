@@ -1,15 +1,17 @@
 
 type SlotTileProps = {
-    letter: string
+    letter: string,
+    removeFunction: () => void
 }
 
-export default function SlotTile({letter} : SlotTileProps)
+export default function SlotTile({letter, removeFunction} : SlotTileProps)
 {
     if (letter !== "")
     {
         return (
             <div
-                className="flex justify-center items-center text-white bg-alt-pink border-4 rounded-sm w-14 h-14 text-[40px]"
+                className="flex justify-center items-center text-white bg-alt-pink border-4 rounded-sm w-14 h-14 text-[40px] cursor-pointer"
+                onClick={removeFunction}
             >
                 {letter}
             </div>

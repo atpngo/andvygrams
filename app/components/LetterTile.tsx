@@ -23,7 +23,7 @@ export default function LetterTile({letter, isPressed, onActivate} : LetterTileP
         }}
         whileHover={{scale: 1.2}}
         whileTap={{scale: 1.1}} 
-        className="flex justify-center items-center text-white bg-alt-pink border-4 rounded-sm w-14 h-14 text-[40px]"
+        className="flex justify-center items-center text-white bg-alt-pink border-4 rounded-sm w-14 h-14 text-[40px] cursor-pointer select-none"
         onClick={onActivate}
         >
             {letter}

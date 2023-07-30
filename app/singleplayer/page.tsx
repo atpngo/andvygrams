@@ -46,9 +46,7 @@ const REWARDED_POINTS: PointType = {
 
 export default function Page()
 {
-    const {seconds, start, pause, running, stop} = useTimer(() => {
-        window.alert("ALL DONE")
-    }, 60)
+   
     const [enterButtonPressed, setEnterButtonPressed] = useState(false)
     const [loading, setLoading] = useState(true);
     const [letters, setLetters] = useState(["", "", "", "", "", ""])
@@ -61,122 +59,150 @@ export default function Page()
     const [words, setWords] = useState(0);
     const [states, setState] = useState([false, false, false, false, false, false]);
 
+    const [game, setGame] = useState(false);
+
+    const {seconds, start, pause, running, stop} = useTimer(() => {
+        setGame(false);
+        // window.alert("ALL DONE")
+    }, 5)
+
+
+    const submitGuess = () => 
+    {
+        if (usedLetters.length > 2)
+        {
+            console.log("USED LETTERS", usedLetters);
+            let options = answers[usedLetters.length];
+            let word = usedLetters.join("");
+            // TODO: error toast if you already solved this word
+            if (options.includes(word) && !solvedWords.includes(word))
+            {
+                setPoints((prev) => {
+                    setPrevPoints(prev);
+                    return prev + REWARDED_POINTS[usedLetters.length];
+                })
+                setWords((prev) => {
+                    return prev + 1
+                })
+                setSolvedWords((prev) => {
+                    let tmp = [...prev];
+                    tmp.push(word)
+                    return tmp;
+                })
+            }
+
+            // reset words
+            setUsedLetters([]);
+            setLetters(constLetters);
+        }
+    }
+
+    const activateLetter = (key: string, idx: number) => {
+        setUsedLetters((prev) => {
+            prev.push(letters[idx]); 
+            return prev;
+        });
+        // mark as used
+        setLetters((prev) => {
+            let newState = [...prev];
+            newState[idx] = "";
+            return newState;
+        })
+
+        setState((prev) => {
+            let newState = [...prev];
+            newState[letters.indexOf(key)] = true;
+            return newState;
+        });
+    }
+
+    const removeFromBoardAtIndex = (index: number) => {
+        let removed = usedLetters[index];
+        // pop it
+        setUsedLetters((prev) => {
+            let newState = [...prev];
+            newState.splice(index, 1)
+            return newState;
+        });
+
+        let firstIndex = constLetters.indexOf(removed);
+        // resolve repeat letters
+        for (let i=0; i<letters.length; i++)
+        {
+            if (letters[i] === "" && constLetters[i] === removed)
+            {
+                firstIndex = i;
+            }
+        }
+        // add back to options
+        setLetters((prev) => {
+            let newState = [...prev];
+            newState[firstIndex] = removed;
+            return newState;
+        })
+        // no longer being pressed
+        setState((prev) => {
+            let newState = [...prev];
+            newState[firstIndex] = false;
+            return newState;
+        })
+    }
 
     const removeLastLetterFromBoard = () => {
         if (usedLetters.length > 0)
         {
+            let index = usedLetters.length-1;
             // get last letter
-            let removed = usedLetters[usedLetters.length-1];
-            // pop it
-            setUsedLetters((prev) => {
-                let newState = [...prev];
-                newState.pop();
-                return newState;
-            });
-    
-            let firstIndex = constLetters.indexOf(removed);
-            // resolve repeat letters
-            for (let i=0; i<letters.length; i++)
-            {
-                if (letters[i] === "" && constLetters[i] === removed)
-                {
-                    firstIndex = i;
-                }
-            }
-            // add back to options
-            setLetters((prev) => {
-                let newState = [...prev];
-                newState[firstIndex] = removed;
-                return newState;
-            })
-            // no longer being pressed
-            setState((prev) => {
-                let newState = [...prev];
-                newState[firstIndex] = false;
-                return newState;
-            })
+            removeFromBoardAtIndex(index);
         }
     }
 
     useKeyDown((_key) => {
-        let key = _key.toUpperCase();
-        console.log(key)
-        if (letters.includes(key))
+        if (game)
         {
-            // first index of letter
-            const firstIndex = letters.indexOf(key);
-            // push first unused letter -> used
-            setUsedLetters((prev) => {
-                prev.push(letters[firstIndex]); 
-                return prev;
-            });
-            // mark as used
-            setLetters((prev) => {
-                let newState = [...prev];
-                newState[firstIndex] = "";
-                return newState;
-            })
+            let key = _key.toUpperCase();
+            console.log(key)
+            if (letters.includes(key))
+            {
+                // first index of letter
+                const firstIndex = letters.indexOf(key);
+                // push first unused letter -> used
+                activateLetter(key, firstIndex);
 
-            setState((prev) => {
-                let newState = [...prev];
-                newState[letters.indexOf(key)] = true;
-                return newState;
-            });
+            }
+            if (key === "ENTER")
+            {
+                setEnterButtonPressed(true);
+            }
 
+            if (key === "BACKSPACE" && usedLetters.length > 0)
+            {
+                removeLastLetterFromBoard();
+            }
         }
-        if (key === "ENTER")
-        {
-            setEnterButtonPressed(true);
-        }
-
-        if (key === "BACKSPACE" && usedLetters.length > 0)
-        {
-            removeLastLetterFromBoard();
-        }
+        
     })
 
     useKeyUp((_key) => {
-        let key = _key.toUpperCase();
-        if (letters.includes(key))
+        if (game)
         {
-            setState((prev) => {
-                let newState = [...prev];
-                newState[letters.indexOf(key)] = false;
-                return newState;
-            });
-        }
-        if (key === "ENTER")
-        {
-            setEnterButtonPressed(false);
-            // TODO: maybe turn into function?
-            if (usedLetters.length > 2)
+            let key = _key.toUpperCase();
+            if (letters.includes(key))
             {
-                console.log("USED LETTERS", usedLetters);
-                let options = answers[usedLetters.length];
-                let word = usedLetters.join("");
-                // TODO: error toast if you already solved this word
-                if (options.includes(word) && !solvedWords.includes(word))
-                {
-                    setPoints((prev) => {
-                        setPrevPoints(prev);
-                        return prev + REWARDED_POINTS[usedLetters.length];
-                    })
-                    setWords((prev) => {
-                        return prev + 1
-                    })
-                    setSolvedWords((prev) => {
-                        let tmp = [...prev];
-                        tmp.push(word)
-                        return tmp;
-                    })
-                }
-
-                // reset words
-                setUsedLetters([]);
-                setLetters(constLetters);
-
+                setState((prev) => {
+                    let newState = [...prev];
+                    newState[letters.indexOf(key)] = false;
+                    return newState;
+                });
+            }
+            if (key === "ENTER")
+            {
+                setEnterButtonPressed(false);
+                // TODO: maybe turn into function?
+                submitGuess();
             }
         }
+
     })
 
     const [val, setVal] = useState(null);
@@ -194,6 +220,7 @@ export default function Page()
                         setAnswers(res_2.data.words);
                         console.log(res_2.data.words)
                         setLoading(false);
+                        setGame(true);
                         start();
                     }
                 )
@@ -244,7 +271,7 @@ export default function Page()
                     <ShuffleIcon className="text-white text-[4rem]"/>
                 </motion.div>
                 {/* ENTER */}
-                <EnterButton isPressed={enterButtonPressed}>
+                <EnterButton isPressed={enterButtonPressed} onClick={() => {submitGuess()}}>
                     <p className="text-[30px] px-4">ENTER</p>
                 </EnterButton>
             </div>
@@ -254,18 +281,18 @@ export default function Page()
                 <div className="flex space-x-2">
                     {usedLetters.map((letter, idx) => {
                         return (
-                            <SlotTile letter={letter} key={idx}/>
+                            <SlotTile letter={letter} key={idx} removeFunction={() => {removeFromBoardAtIndex(idx)}}/>
                         )
                     })}
                     {Array(letters.length-usedLetters.length).fill("").map((letter, idx) => {
-                        return <SlotTile letter={letter} key={idx}/>
+                        return <SlotTile letter={letter} key={idx} removeFunction={() => {}}/>
                     })}
                 </div>
                 {/* LETTERS */}
                 <div className="flex space-x-2">
                     {letters.map((letter, idx) => {
                         return (
-                            <LetterTile key={idx} isPressed={states[idx]} letter={letter} onActivate={() => {console.log('hey')}}/>
+                            <LetterTile key={idx} isPressed={states[idx]} letter={letter} onActivate={() => {if (game) activateLetter(letter, idx)}}/>
                         )
                     })}
                 </div>
