@@ -243,7 +243,6 @@ export default function Page()
 
     })
 
-    const [val, setVal] = useState(null);
     useEffect(() => {
         initializeGame()
     }, [])
@@ -259,7 +258,7 @@ export default function Page()
 
     return (
         <div className="flex z-10 flex-col p-4 h-screen justify-center items-center justify-evenly" tabIndex={0}>
-            <SpringModal open={!game} handleOpen={() => setOpen(true)} handleClose={(event, reason) => {
+            <SpringModal open={open} handleClose={(event, reason) => {
                 if (reason !== "backdropClick")
                 {
                     setOpen(false)
@@ -293,9 +292,6 @@ export default function Page()
             {/* LOGO */}
             <div>
                 <Image alt="logo" src="/logo.png" width={1000} height={20} className="drop-shadow-lg"/>
-            </div>
-            <div className="text-white z-10">
-                {val}
             </div>
             {/* ETC */}
             <div className="flex flex-col space-y-3 items-center">

@@ -5,12 +5,11 @@ import { useSpring, animated } from '@react-spring/web';
 
 type SpringModalProps = {
     open: boolean,
-    handleOpen: () => void, 
     handleClose: (event: Event, reason: string) => void, 
     children: React.ReactElement
 }
 
-export default function SpringModal({open, handleOpen, handleClose, children}: SpringModalProps) {
+export default function SpringModal({open, handleClose, children}: SpringModalProps) {
   return (
     <div style={{zIndex: 10}}>
       <StyledModal
