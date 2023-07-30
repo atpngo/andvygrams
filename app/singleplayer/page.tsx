@@ -46,7 +46,9 @@ const REWARDED_POINTS: PointType = {
 
 export default function Page()
 {
-    const time = useTimer(60000, () => {console.log('hello')})
+    const {seconds, start, pause, running, stop} = useTimer(() => {
+        window.alert("ALL DONE")
+    }, 60)
     const [enterButtonPressed, setEnterButtonPressed] = useState(false)
     const [loading, setLoading] = useState(true);
     const [letters, setLetters] = useState(["", "", "", "", "", ""])
@@ -192,6 +194,7 @@ export default function Page()
                         setAnswers(res_2.data.words);
                         console.log(res_2.data.words)
                         setLoading(false);
+                        start();
                     }
                 )
                 
@@ -221,7 +224,7 @@ export default function Page()
             <div className="flex flex-col space-y-3 items-center">
                 {/* TIMER */}
                 <Container>
-                    <p className="-my-4 text-[80px]">00:{time < 10000 && 0}{Math.floor(time/1000)}</p>
+                    <p className="-my-4 text-[80px]">0{Math.floor(seconds/60)}:{seconds < 10 && 0}{seconds%60}{(seconds%60 === 0 && seconds > 0) && 0}</p>
                 </Container>
                 {/* SCORE */}
                 <Container>

@@ -1,19 +1,44 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export const useTimer = (initialTime: number, callback: () => void, interval=1000) => 
-{
-    const [time, setTime] = useState(initialTime);
+const interval = (delay: number = 0) => (callback: () => void) =>
+  useEffect(() => {
+    const id = setInterval(callback, delay);
 
-    useEffect(() => {
-        const customInterval = setInterval(() => {
-            if (time > 0)
-                setTime((prev) => prev-interval)
-        }, interval)
+    return () => clearInterval(id);
+  }, [callback]);
 
-        if (time === 0) callback()
+const use1Second = interval(1000);
 
-        return () => clearInterval(customInterval)
-    }, [time])
+export const useTimer = (
+  callback: () => void,
+  initialSeconds: number = 0,
+  initiallyRunning: boolean = false,
+) => {
+  const [seconds, setSeconds] = useState(initialSeconds);
+  const [running, setRunning] = useState(initiallyRunning);
+  const tick = useCallback(
+    () => (running ? setSeconds((seconds) => {
+        if (seconds > 0)
+        {
+            return seconds - 1;
+        }
+        return seconds;
+    }) : undefined),
+    [running]
+  );
+  const start = () => setRunning(true);
+  const pause = () => setRunning(false);
+  const reset = () => setSeconds(0);
+  const stop = () => {
+    pause();
+    reset();
+  };
 
-    return time;
-}
+  use1Second(tick);
+  if (seconds === 0)
+  {
+    callback();
+  }
+
+  return { pause, reset, running, seconds, start, stop };
+};
