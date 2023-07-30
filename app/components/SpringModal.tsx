@@ -9,7 +9,7 @@ type SpringModalProps = {
     children: React.ReactElement
 }
 
-export default function SpringModal({open, handleClose, children}: SpringModalProps) {
+function SpringModal({open, handleClose, children}: SpringModalProps) {
   return (
     <div style={{zIndex: 10}}>
       <StyledModal
@@ -37,6 +37,7 @@ const Backdrop = React.forwardRef<
   const { open, ...other } = props;
   return <Fade ref={ref} in={open} {...other} />;
 });
+Backdrop.displayName = "Backdrop";
 
 const StyledModal = styled(Modal)`
   position: fixed;
@@ -86,3 +87,7 @@ const Fade = React.forwardRef<HTMLDivElement, FadeProps>(function Fade(props, re
     </animated.div>
   );
 });
+
+Fade.displayName = "Fade"
+
+export default SpringModal;

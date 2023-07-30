@@ -16,7 +16,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <meta name="viewport" content="width=device-width, user-scalable=no"></meta>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link
+        rel="apple-touch-icon"
+        href="/apple-icon?<generated>"
+        type="image/<generated>"
+        sizes="<generated>"
+        />
+        <meta name="viewport" content="width=device-width, user-scalable=no"></meta>
+      </head>
       <body className={"stripe __className_30c698"}>
         {children}
       </body>
