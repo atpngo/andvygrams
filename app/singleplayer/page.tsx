@@ -12,6 +12,7 @@ import { useTimer } from "../hooks/useTimer";
 import { useKeyDown } from "../hooks/useKeyDown";
 import { useKeyUp } from "../hooks/useKeyUp";
 import { useSpring, animated } from "react-spring"; 
+import SpringModal from "../components/SpringModal";
 
 type AnimatedNumberProps = {
     current: number,
@@ -58,13 +59,51 @@ export default function Page()
     const [points, setPoints] = useState(0);
     const [words, setWords] = useState(0);
     const [states, setState] = useState([false, false, false, false, false, false]);
-
     const [game, setGame] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const {seconds, start, pause, running, stop} = useTimer(() => {
         setGame(false);
+        setOpen(true);
         // window.alert("ALL DONE")
-    }, 5)
+    }, 60)
+
+    const initializeGame = () => {
+        setOpen(false);
+        setEnterButtonPressed(false);
+        setLoading(true);
+        setLetters(["", "", "", "", "", ""]);
+        setConstLetters(["", "", "", "", "", ""]);
+        setAnswers(Object);
+        setUsedLetters([]);
+        setSolvedWords([]);
+        setPrevPoints(0);
+        setPoints(0);
+        setWords(0);
+        setState([false, false, false, false, false, false]);
+        setGame(false);
+
+        axios.get('/api/words/%20?length=6', {}).then(
+            res => {
+                let words = res.data.words;
+                const randomNum = Math.floor(Math.random()*words.length);
+                const word = words[randomNum];
+                const shuffled = shuffleArray(Array.from(word));
+                setLetters(shuffled);
+                setConstLetters(shuffled);
+                axios.get('/api/anagrams/%20?letters=' + word).then(
+                    res_2 => {
+                        setAnswers(res_2.data.words);
+                        console.log(res_2.data.words)
+                        setLoading(false);
+                        setGame(true);
+                        start();
+                    }
+                )
+                
+            }
+        )
+    }
 
 
     const submitGuess = () => 
@@ -198,7 +237,6 @@ export default function Page()
             if (key === "ENTER")
             {
                 setEnterButtonPressed(false);
-                // TODO: maybe turn into function?
                 submitGuess();
             }
         }
@@ -207,26 +245,7 @@ export default function Page()
 
     const [val, setVal] = useState(null);
     useEffect(() => {
-        axios.get('/api/words/%20?length=6', {}).then(
-            res => {
-                let words = res.data.words;
-                const randomNum = Math.floor(Math.random()*words.length);
-                const word = words[randomNum];
-                const shuffled = shuffleArray(Array.from(word));
-                setLetters(shuffled);
-                setConstLetters(shuffled);
-                axios.get('/api/anagrams/%20?letters=' + word).then(
-                    res_2 => {
-                        setAnswers(res_2.data.words);
-                        console.log(res_2.data.words)
-                        setLoading(false);
-                        setGame(true);
-                        start();
-                    }
-                )
-                
-            }
-        )
+        initializeGame()
     }, [])
 
     if (loading)
@@ -240,6 +259,37 @@ export default function Page()
 
     return (
         <div className="flex z-10 flex-col p-4 h-screen justify-center items-center justify-evenly" tabIndex={0}>
+            <SpringModal open={!game} handleOpen={() => setOpen(true)} handleClose={(event, reason) => {
+                if (reason !== "backdropClick")
+                {
+                    setOpen(false)
+                }
+            }}>
+                <div className="w-[90vw] h-[600px] max-w-[450px] text-center bg-alt-pink rounded-lg py-4 border-white border-4 text-white space-y-2">
+                    <p className="text-4xl">Solved Words</p>
+                    <p className="text-2xl">Score: {points}</p>
+                    <div className="flex flex-col overflow-auto h-[73%] px-4">
+                        {solvedWords.sort((a,b) => {
+                            return b.length-a.length || a.localeCompare(b)
+                        }).map((word, idx) => {
+                            return (
+                                <div key={idx} className="flex flex-row justify-between w-full text-xl">
+                                    <p>{word}</p>
+                                    <p>{REWARDED_POINTS[word.length]}</p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <motion.button 
+                        className="text-2xl border-4 border-white p-2 px-4 bg-btn-pink rounded-lg "
+                        whileHover={{scale: 1.2}}
+                        whileTap={{scale: 1.1}}
+                        onClick={initializeGame}
+                    >
+                        Play Again
+                    </motion.button>
+                </div>
+            </SpringModal>
             {/* LOGO */}
             <div>
                 <Image alt="logo" src="/logo.png" width={1000} height={20} className="drop-shadow-lg"/>
