@@ -92,7 +92,7 @@ export default function Page()
         setGame(false);
         setLatestWord("");
 
-        axios.get('/api/words/%20?length=6', {}).then(
+        axios.post('/api/words', {'length': 6}).then(
             res => {
                 let words = res.data.words;
                 const randomNum = Math.floor(Math.random()*words.length);
@@ -100,7 +100,7 @@ export default function Page()
                 const shuffled = shuffleArray(Array.from(word));
                 setLetters(shuffled);
                 setConstLetters(shuffled);
-                axios.get('/api/anagrams/%20?letters=' + word).then(
+                axios.post('/api/anagrams/letters', {"letters": word}).then(
                     res_2 => {
                         setAnswers(res_2.data.words);
                         console.log(res_2.data.words)
