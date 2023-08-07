@@ -15,12 +15,12 @@ export default function Home()
         <HomeButton name="SINGLE PLAYER" link="/singleplayer">
           <BsPersonFill className="text-white text-[90px]"/>
         </HomeButton>
-        <HomeButton name="MULTIPLAYER" link="/singleplayer">
+        {/* <HomeButton name="MULTIPLAYER" link="/singleplayer">
           <BsPeopleFill className="text-white text-[90px]"/>
         </HomeButton>
         <HomeButton name="DAILY CHALLENGE" link="/singleplayer">
           <BsFillPuzzleFill className="text-white text-[90px]"/>
-        </HomeButton>
+        </HomeButton> */}
       </div>
     </div>
   )
