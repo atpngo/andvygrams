@@ -117,11 +117,11 @@ export default function Home()
             <BsPersonFill className="text-white text-[90px]"/>
           </HomeButton>
         </Link>
-        <div onClick={() => {setOpen(true)}}>
+        {isConnected && <div onClick={() => {setOpen(true)}}>
           <HomeButton name="MULTIPLAYER">
             <BsPeopleFill className="text-white text-[90px]"/>
           </HomeButton>
-        </div>
+        </div>}
         {/* <HomeButton name="DAILY CHALLENGE" link="/singleplayer">
           <BsFillPuzzleFill className="text-white text-[90px]"/>
         </HomeButton> */}
