@@ -273,7 +273,7 @@ export default function Page()
     }
 
     return (
-        <div className="flex z-10 flex-col p-4 h-screen justify-center items-center justify-evenly" tabIndex={0}>
+        <div className="flex z-10 flex-col p-4 h-screen items-center justify-evenly" tabIndex={0}>
             <SpringModal open={open} handleClose={(event, reason) => {
                 if ((reason !== "backdropClick") && (reason !== "escapeKeyDown"))
                 {
@@ -356,10 +356,14 @@ export default function Page()
                 <div className="flex flex-col justify-center items-center space-y-4">
                     {/* SHUFFLE */}
                     <motion.div whileHover={{scale: 1.2}} whileTap={{scale: 1.1}} onClick={() => {
-                        let shuffled = shuffleArray(letters)
-                        setLetters(shuffled);
+                        if (usedLetters.length === 0)
+                        {
+                            let shuffled = shuffleArray(letters)
+                            setLetters(shuffled);
+                        }
+                        
                     }}>
-                        <ShuffleIcon className="text-white text-[100    px]"/>
+                        <ShuffleIcon className="text-white text-[100px]"/>
                     </motion.div>
                     {/* ENTER */}
                     <EnterButton isPressed={enterButtonPressed} onClick={() => {submitGuess()}}>
