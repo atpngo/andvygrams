@@ -84,7 +84,7 @@ export default function RoomPage()
     const [latestWord, setLatestWord] = useState("");
     const [opponentPoints, setOpponentPoints] = useState(0);
     const [opponentPrevPoints, setOpponentPrevPoints] = useState(0);
-    const [opponentWords, setOpponentWords] = useState([]);
+    const [opponentWords, setOpponentWords] = useState<any[]>([]);
 
     const submitGuess = () => 
     {
@@ -314,6 +314,9 @@ export default function RoomPage()
             setState([false, false, false, false, false, false]);
             setGame(true);
             setLatestWord("");
+            setOpponentPoints(0)
+            setOpponentPrevPoints(0)
+            setOpponentWords([]);
 
             // start timer
             start();
@@ -326,6 +329,17 @@ export default function RoomPage()
             setOpponentWords(res[1]["opponent"])
         }
 
+        function onOpponentLeft()
+        {
+            setNumPlayers(1)
+            setOpponentReady(false);
+            setReady(false);
+            // reset game status
+            setOpponentPoints(0);
+            setOpponentWords([]);
+            stop();
+        }
+
 
         socket.on('connect', onConnect)
         socket.on('disconnect', onDisconnect)
@@ -336,6 +350,7 @@ export default function RoomPage()
         socket.on('gameReady', onGameReady)
         socket.on('dataReady', onDataReady)
         socket.on('scoreboardUpdate', onScoreboardUpdate)
+        socket.on('opponentLeft', onOpponentLeft)
 
         return () => {
             socket.off('connect', onConnect)
@@ -347,7 +362,8 @@ export default function RoomPage()
             socket.off('gameReady', onGameReady)
             socket.off('dataReady', onDataReady)
             socket.off('scoreboardUpdate', onScoreboardUpdate)
-    }
+            socket.off('opponentLeft', onOpponentLeft)
+        }
 
 
 
@@ -458,15 +474,18 @@ export default function RoomPage()
                                 {/* TODO implement new game */}
                                 PLAY AGAIN
                             </motion.button>
-                            <Link href="/">
-                                <motion.button
-                                    className="text-2xl border-4 border-white p-2 px-4 bg-[#F03F4A] rounded-lg "
-                                    whileHover={{scale: 1.2}}
-                                    whileTap={{scale: 1.1}}
-                                >
-                                    LEAVE
-                                </motion.button>
-                            </Link>
+                            <motion.button
+                                className="text-2xl border-4 border-white p-2 px-4 bg-[#F03F4A] rounded-lg"
+                                whileHover={{scale: 1.2}}
+                                whileTap={{scale: 1.1}}
+                                onClick={() => {
+                                    // disconnect from room
+                                    socket.emit("leaveRoom", roomID)
+                                    router.push("/")
+                                }}
+                            >
+                                LEAVE
+                            </motion.button>
                         </div>
                     </div>
                 </SpringModal>

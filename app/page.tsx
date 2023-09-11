@@ -16,6 +16,7 @@ export default function Home()
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [open, setOpen] = useState(false);
   const [waiting, setWaiting] = useState(false);
+  const [roomCode, setRoomCode] = useState('');
   useEffect(() => {
     socket.connect();
     function onConnect() {
@@ -72,11 +73,17 @@ export default function Home()
               <p className="text-lg">Enter Code:</p>
               <div className="flex gap-2">
                 {/* text box placeholder */}
-                <input className="w-[200px] h-[50px] bg-white rounded-xl text-black flex justify-center items-center text-[40px] drop-shadow-lg text-center"/>
+                <input 
+                  className="w-[200px] h-[50px] bg-white rounded-xl text-black flex justify-center items-center text-[40px] drop-shadow-lg text-center"
+                  onChange={(e) => {setRoomCode(e.target.value)}}
+                />
                 <motion.div 
                   className="flex rounded-lg h-[50px] w-[100px] items-center justify-center border-white border-4 bg-[#54A7F3] text-white text-2xl drop-shadow-lg"
                   whileHover={{scale: 1.15}}
                   whileTap={{scale: 1.1}}
+                  onClick={() => {
+                    router.push('/multiplayer/' + roomCode.toUpperCase())
+                  }}
                 >
                   JOIN
                 </motion.div>
