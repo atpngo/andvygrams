@@ -1,11 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { socket } from '@/app/components/Socket'
+import { socket } from '../../components/Socket'
 import { ColorRing, MutatingDots } from 'react-loader-spinner';
 import { motion } from "framer-motion"
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTimer } from "@/app/hooks/useTimer";
+import { useCDTimer } from '@/app/hooks/useCDTimer';
 import Container from '@/app/components/Container';
 import { useSpring, animated } from "react-spring"; 
 import ShuffleIcon from '@mui/icons-material/Shuffle';
@@ -64,6 +65,7 @@ export default function RoomPage()
     const router = useRouter();
     const [waitingForAcknowledgement, setWaitingForAcknowledgement] = useState(false)
     const [waitingForGameData, setWaitingForGameData] = useState(true)
+    const [isCountingDown, setIsCountingDown] = useState(false);
 
     const [letters, setLetters] = useState(["", "", "", "", "", ""])
     const [constLetters, setConstLetters] = useState(["", "", "", "", "", ""])
@@ -243,6 +245,15 @@ export default function RoomPage()
         setOpen(true);
     }, 60)
 
+    // 3, 2, 1 Countdown timer
+    const {countdownSeconds, startCountdown, stopCountdown} = useCDTimer((stopCountdown: () => void) => {
+        setIsCountingDown(false);
+        setGame(true);
+        stopCountdown();
+        start();
+    }, 3)
+
+
     useEffect(() => {
         let url = window.location.href.split("/");
         let room_id = url[url.length-1];
@@ -312,14 +323,16 @@ export default function RoomPage()
             setPoints(0);
             setWords(0);
             setState([false, false, false, false, false, false]);
-            setGame(true);
             setLatestWord("");
             setOpponentPoints(0)
             setOpponentPrevPoints(0)
             setOpponentWords([]);
-
-            // start timer
-            start();
+            
+            // start timer and game
+            setIsCountingDown(true);
+            startCountdown();
+            // setGame(true);
+            // start();
         }
 
         function onScoreboardUpdate(res: any)
@@ -410,6 +423,16 @@ export default function RoomPage()
             )
         }
 
+        if (isCountingDown)
+        {
+            return (
+                <div className="w-full h-full justify-evenly flex flex-col items-center z-[1000] text-center">
+                    
+                    <p className="text-white text-[300px]">{countdownSeconds != 0 ? countdownSeconds : "GO!"}</p>
+                </div>
+            )
+        }
+
         // return the game from single player!!!!!!!!
         return (
             <div className='flex z-[1000] flex-col p-4 h-screen items-center justify-evenly' tabIndex={0}>
@@ -469,7 +492,16 @@ export default function RoomPage()
                                 className="text-2xl border-4 border-white p-2 px-4 bg-[#49A61E] rounded-lg "
                                 whileHover={{scale: 1.2}}
                                 whileTap={{scale: 1.1}}
-                                onClick={() => {}}
+                                onClick={() => {
+                                    // broadcast to the other socket you want to play again
+                                    // socket.emit("playAgainRequest", )
+                                    // case 1: you are the first person to press it
+                                        // just broadcast
+                                        // other player should see a "other player wants to play again"
+                                    // case 2: you are the second person to press it
+                                        // you should see a "other player wants to play again"
+                                        // 
+                                }}
                             >
                                 {/* TODO implement new game */}
                                 PLAY AGAIN
@@ -549,10 +581,11 @@ export default function RoomPage()
                             {
                                 let shuffled = shuffleArray(letters)
                                 setLetters(shuffled);
+                                setConstLetters(shuffled);
                             }
                             
                         }}>
-                            <ShuffleIcon className="text-white text-[50px]"/>
+                            <ShuffleIcon className="text-white" fontSize="large"/>
                         </motion.div>
                         {/* ENTER */}
                         <EnterButton isPressed={enterButtonPressed} onClick={() => {submitGuess()}}>

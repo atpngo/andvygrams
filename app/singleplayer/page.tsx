@@ -360,6 +360,7 @@ export default function Page()
                         {
                             let shuffled = shuffleArray(letters)
                             setLetters(shuffled);
+                            setConstLetters(shuffled);
                         }
                         
                     }}>
