@@ -66,6 +66,8 @@ export default function RoomPage()
     const [waitingForAcknowledgement, setWaitingForAcknowledgement] = useState(false)
     const [waitingForGameData, setWaitingForGameData] = useState(true)
     const [isCountingDown, setIsCountingDown] = useState(false);
+    const [opponentWaiting, setOpponentWaiting] = useState(false);
+    const [waitingForOpponent, setWaitingForOpponent] = useState(false);
 
     const [letters, setLetters] = useState(["", "", "", "", "", ""])
     const [constLetters, setConstLetters] = useState(["", "", "", "", "", ""])
@@ -95,7 +97,7 @@ export default function RoomPage()
             console.log("USED LETTERS", usedLetters);
             let options = answers[usedLetters.length];
             let word = usedLetters.join("");
-            // TODO: error toast if you already solved this word
+            // TODO: error toast if you already solved this word?
             
             if (options.includes(word) && !solvedWords.includes(word))
             {
@@ -243,7 +245,8 @@ export default function RoomPage()
         setGame(false);
         stop();
         setOpen(true);
-    }, 60)
+    }, 60) 
+    // TODO: also this should be a server-side thing...
 
     // 3, 2, 1 Countdown timer
     const {countdownSeconds, startCountdown, stopCountdown} = useCDTimer((stopCountdown: () => void) => {
@@ -327,6 +330,10 @@ export default function RoomPage()
             setOpponentPoints(0)
             setOpponentPrevPoints(0)
             setOpponentWords([]);
+
+            // 
+            setOpponentWaiting(false);
+            setWaitingForOpponent(false);
             
             // start timer and game
             setIsCountingDown(true);
@@ -353,6 +360,20 @@ export default function RoomPage()
             stop();
         }
 
+        function onOpponentWantsToPlayAgain()
+        {
+            setOpponentWaiting(true);
+        }
+
+        function onResetAndGetReady()
+        {
+            // Players want to play again, reset the ENTIRE LOBBY
+            setWaitingForGameData(true);
+            // reset timers
+            stop();
+            stopCountdown();
+        }
+
 
         socket.on('connect', onConnect)
         socket.on('disconnect', onDisconnect)
@@ -364,6 +385,8 @@ export default function RoomPage()
         socket.on('dataReady', onDataReady)
         socket.on('scoreboardUpdate', onScoreboardUpdate)
         socket.on('opponentLeft', onOpponentLeft)
+        socket.on('opponentWantsToPlayAgain', onOpponentWantsToPlayAgain)
+        socket.on('resetAndGetReady', onResetAndGetReady)
 
         return () => {
             socket.off('connect', onConnect)
@@ -376,6 +399,9 @@ export default function RoomPage()
             socket.off('dataReady', onDataReady)
             socket.off('scoreboardUpdate', onScoreboardUpdate)
             socket.off('opponentLeft', onOpponentLeft)
+            socket.off('opponentWantsToPlayAgain', onOpponentWantsToPlayAgain)
+            socket.off('resetAndGetReady', onResetAndGetReady)
+
         }
 
 
@@ -489,22 +515,21 @@ export default function RoomPage()
                         </div>
                         <div className="flex w-full justify-evenly">
                             <motion.button
-                                className="text-2xl border-4 border-white p-2 px-4 bg-[#49A61E] rounded-lg "
+                                className="text-xl border-4 border-white p-2 px-4 rounded-lg "
+                                // className="text-xl border-4 border-white p-2 px-4 bg-[#49A61E] rounded-lg "
                                 whileHover={{scale: 1.2}}
                                 whileTap={{scale: 1.1}}
+                                style={{
+                                'background': opponentWaiting ? "#54A7F3" : (waitingForOpponent ? "#8a8a8a" : "#49A61E")
+                                }}
+                                disabled={waitingForOpponent}
                                 onClick={() => {
-                                    // broadcast to the other socket you want to play again
-                                    // socket.emit("playAgainRequest", )
-                                    // case 1: you are the first person to press it
-                                        // just broadcast
-                                        // other player should see a "other player wants to play again"
-                                    // case 2: you are the second person to press it
-                                        // you should see a "other player wants to play again"
-                                        // 
+                                    socket.emit("letsPlayAgain", roomID)
+                                    setWaitingForOpponent(true);
                                 }}
                             >
                                 {/* TODO implement new game */}
-                                PLAY AGAIN
+                                {opponentWaiting ? "CLICK TO PLAY AGAIN!" : (waitingForOpponent ? "WAITING FOR OPPONENT..." : "ASK TO PLAY AGAIN?")}
                             </motion.button>
                             <motion.button
                                 className="text-2xl border-4 border-white p-2 px-4 bg-[#F03F4A] rounded-lg"
