@@ -16,9 +16,8 @@ import LetterTile from '@/app/components/LetterTile';
 import { useKeyDown } from "@/app/hooks/useKeyDown";
 import { useKeyUp } from "@/app/hooks/useKeyUp";
 import Toast from '@/app/components/Toast';
-import { AiOutlineCheckCircle, AiOutlineConsoleSql } from 'react-icons/ai';
+import { AiOutlineCheckCircle, AiOutlineCloseCircle, AiOutlineExclamationCircle } from 'react-icons/ai';
 import SpringModal from '@/app/components/SpringModal';
-import Link from 'next/link';
 
 type AnimatedNumberProps = {
     current: number,
@@ -56,7 +55,6 @@ export default function RoomPage()
     const [roomID, setRoomID] = useState('')
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [events, setEvents] = useState<any>([]);
-    const [validRoom, setValidRoom] = useState(false);
     const [joinedRoom, setJoinedRoom] = useState(false)
     const [waiting, setWaiting] = useState(true)
     const [numPlayers, setNumPlayers] = useState(0);
@@ -73,6 +71,7 @@ export default function RoomPage()
     const [constLetters, setConstLetters] = useState(["", "", "", "", "", ""])
     const [answers, setAnswers] = useState(Object)
 
+    const [showCopied, setShowCopied] = useState(false);
 
     const [enterButtonPressed, setEnterButtonPressed] = useState(false);
     const [usedLetters, setUsedLetters] = useState<string[]>([]);
@@ -85,6 +84,7 @@ export default function RoomPage()
     const [open, setOpen] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showCorrect, setShowCorrect] = useState(false);
+    const [showAlreadyUsed, setShowAlreadyUsed] = useState(false);
     const [latestWord, setLatestWord] = useState("");
     const [opponentPoints, setOpponentPoints] = useState(0);
     const [opponentPrevPoints, setOpponentPrevPoints] = useState(0);
@@ -94,7 +94,6 @@ export default function RoomPage()
     {
         if (usedLetters.length > 2)
         {
-            console.log("USED LETTERS", usedLetters);
             let options = answers[usedLetters.length];
             let word = usedLetters.join("");
             // TODO: error toast if you already solved this word?
@@ -115,15 +114,17 @@ export default function RoomPage()
                     return tmp;
                 })
 
-                console.log("Prev solved words:" + solvedWords)
-
                 setShowCorrect(true);
                 // SEND MESSAGE TO SERVER
                 socket.emit("scoreUpdate", points + REWARDED_POINTS[usedLetters.length], [...solvedWords, word])
-            }
+            } 
             else 
             {
-                setShowError(true);
+                if (solvedWords.includes(word)) {
+                    setShowAlreadyUsed(true);
+                } else {
+                    setShowError(true);
+                }
             }
 
             // reset words
@@ -197,7 +198,6 @@ export default function RoomPage()
         if (game)
         {
             let key = _key.toUpperCase();
-            console.log(key)
             if (letters.includes(key))
             {
                 // first index of letter
@@ -358,6 +358,8 @@ export default function RoomPage()
             setOpponentPoints(0);
             setOpponentWords([]);
             stop();
+            stopCountdown();
+            setWaitingForGameData(true);
         }
 
         function onOpponentWantsToPlayAgain()
@@ -454,7 +456,7 @@ export default function RoomPage()
             return (
                 <div className="w-full h-full justify-evenly flex flex-col items-center z-[1000] text-center">
                     
-                    <p className="text-white text-[300px]">{countdownSeconds != 0 ? countdownSeconds : "GO!"}</p>
+                    <p className="text-white lg:text-[300px] text-[200px]">{countdownSeconds != 0 ? countdownSeconds : "GO!"}</p>
                 </div>
             )
         }
@@ -464,7 +466,6 @@ export default function RoomPage()
             <div className='flex z-[1000] flex-col p-4 h-screen items-center justify-evenly' tabIndex={0}>
 
                 {/* SPRING MODAL */}
-                {/* TODO: after implementing socket comms */}
                 <SpringModal open={open} handleClose={(event, reason) => {
                     if ((reason !== "backdropClick") && (reason !== "escapeKeyDown"))
                     {
@@ -528,8 +529,7 @@ export default function RoomPage()
                                     setWaitingForOpponent(true);
                                 }}
                             >
-                                {/* TODO implement new game */}
-                                {opponentWaiting ? "CLICK TO PLAY AGAIN!" : (waitingForOpponent ? "WAITING FOR OPPONENT..." : "ASK TO PLAY AGAIN?")}
+                                {opponentWaiting ? "CLICK TO PLAY AGAIN!" : (waitingForOpponent ? "WAITING..." : "ASK TO PLAY AGAIN?")}
                             </motion.button>
                             <motion.button
                                 className="text-2xl border-4 border-white p-2 px-4 bg-[#F03F4A] rounded-lg"
@@ -549,8 +549,14 @@ export default function RoomPage()
                 {/* TOASTS */}
                 <Toast show={showError} setShow={setShowError}>
                     <div className="bg-red-500 flex m-0 p-3 border-4 border-white rounded-lg text-center justify-center items-center gap-2">
-                        <AiOutlineCheckCircle size={30} className='text-white'/>
-                        <p className='text-xl text-white m-0 p-0'>Incorrect!</p>
+                        <AiOutlineCloseCircle size={30} className='text-white'/>
+                        <p className='text-xl text-white m-0 p-0'>Not a word</p>
+                    </div>
+                </Toast>
+                <Toast show={showAlreadyUsed} setShow={setShowAlreadyUsed}>
+                    <div className="bg-red-500 flex m-0 p-3 border-4 border-white rounded-lg text-center justify-center items-center gap-2">
+                        <AiOutlineExclamationCircle size={30} className='text-white'/>
+                        <p className='text-xl text-white m-0 p-0'>Already found!</p>
                     </div>
                 </Toast>
                 <Toast show={showCorrect} setShow={setShowCorrect}>
@@ -559,6 +565,7 @@ export default function RoomPage()
                             <p className='text-xl text-white m-0 p-0'>{latestWord}</p>
                         </div>
                 </Toast>
+                
 
                 <div>
                     <Image alt="logo" src="/logo.png" width={1000} height={20} className="drop-shadow-lg w-[300px] lg:w-[800px]"/>
@@ -664,13 +671,19 @@ export default function RoomPage()
                         <div className='flex lg:flex-row flex-col gap-4'>
                             <p className='text-white lg:text-[50px] text-[30px]'>ROOM CODE: {roomID}</p>
                             <motion.div 
-                                className='border-white border-4 rounded-lg bg-btn-pink text-white justify-center items-center flex lg:text-[40px] text-[30px] px-4'
+                                className='border-white border-4 rounded-lg text-white justify-center items-center flex lg:text-[40px] text-[30px] px-4'
+                                style={{
+                                    'background': showCopied ? "#AE0090" : "#49A61E"
+                                }}
                                 whileTap={{scale: 0.9}}
                                 whileHover={{scale: 1.1}}
                                 // TODO: display toast?
-                                onClick={() => {navigator.clipboard.writeText(window.location.href)}}
+                                onClick={() => {
+                                    setShowCopied(true);
+                                    navigator.clipboard.writeText(window.location.href)
+                                }}
                             >
-                                COPY
+                                {showCopied ? "COPIED!" : "COPY"}
                             </motion.div>
                         </div>
                     </div> : 
@@ -681,7 +694,7 @@ export default function RoomPage()
                             <div className='flex w-full justify-between text-white items-center lg:px-[100px] px-10'>
                                 <p className='lg:text-[40px] text-[25px]'>OPPONENT</p>
                                 <div className={`border-4 rounded-lg ${opponentReady ? "bg-[#49A61E]" : "bg-[#969696]"} lg:text-[40px] text-[20px] px-4`}>
-                                    {opponentReady ? "READY" : "NOT READY"}
+                                    {opponentReady ? "READY" : "WAITING..."}
                                 </div>
                             </div>
                             <div className='flex w-full justify-between text-white items-center lg:px-[100px] px-10'>
@@ -699,12 +712,12 @@ export default function RoomPage()
                                         }
                                     }}
                                 >
-                                    {ready ? "READY" : (waitingForAcknowledgement ? "WAITING" : "CLICK ME")}
+                                    {ready ? "READY" : (waitingForAcknowledgement ? "WAITING" : "READY UP!")}
                                 </motion.div>
                             </div>
                         </div>
                         <div className='flex lg:flex-row flex-col gap-4'>
-                            <p className='text-white lg:text-[40px] text-[20px]'>ROOM CODE: {roomID}</p>
+                            <p className='text-white lg:text-[40px] text-[35px]'>ROOM CODE: {roomID}</p>
                         </div>
                     </div>}
                 </div> : 

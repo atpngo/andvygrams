@@ -12,3 +12,9 @@ Road Map:
 - fix all the bugs lol
 - plenty more things that I will probably think of while I work on the above issues
 
+
+Bugs To Fix
+- when plays disconnect in the middle of the game via refreshing
+    - forces players to "ready up" again
+    - countdown will restart for the disconnected player but not the other one...
+    
