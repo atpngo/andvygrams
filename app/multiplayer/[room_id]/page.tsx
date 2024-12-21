@@ -90,6 +90,14 @@ export default function RoomPage()
     const [opponentPrevPoints, setOpponentPrevPoints] = useState(0);
     const [opponentWords, setOpponentWords] = useState<any[]>([]);
 
+    const shuffle = () => {
+        if (usedLetters.length === 0) // check if any vals being used
+        {
+            let shuffled = shuffleArray(letters)
+            setLetters(shuffled);
+            setConstLetters(shuffled);
+        }
+    }
     const submitGuess = () => 
     {
         if (usedLetters.length > 2)
@@ -198,6 +206,7 @@ export default function RoomPage()
         if (game)
         {
             let key = _key.toUpperCase();
+            console.log(key);
             if (letters.includes(key))
             {
                 // first index of letter
@@ -214,6 +223,10 @@ export default function RoomPage()
             if (key === "BACKSPACE" && usedLetters.length > 0)
             {
                 removeLastLetterFromBoard();
+            }
+
+            if (key === " ") {
+                shuffle();
             }
         }
         
@@ -609,12 +622,7 @@ export default function RoomPage()
                     <div className="flex flex-col justify-center items-center space-y-4">
                         {/* SHUFFLE */}
                         <motion.div whileHover={{scale: 1.2}} whileTap={{scale: 1.1}} onClick={() => {
-                            if (usedLetters.length === 0) // check if any vals being used
-                            {
-                                let shuffled = shuffleArray(letters)
-                                setLetters(shuffled);
-                                setConstLetters(shuffled);
-                            }
+                            shuffle();
                             
                         }}>
                             <ShuffleIcon className="text-white" fontSize="large"/>
