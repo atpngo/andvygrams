@@ -17,10 +17,14 @@ export default function Home()
   const [open, setOpen] = useState(false);
   const [waiting, setWaiting] = useState(false);
   const [roomCode, setRoomCode] = useState('');
+  const [latency, setLatency] = useState(0);
   useEffect(() => {
     socket.connect();
     function onConnect() {
+      console.log("we connected")
       setIsConnected(true);
+      startPinging();
+      console.log("we pinging in this b-word")
     }
 
     function onDisconnect() {
@@ -34,17 +38,39 @@ export default function Home()
       setWaiting(false);
     }
 
+    function onLatency(serverLatency: number) {
+      setLatency(serverLatency)
+    }
+
+    function onPing(originalTime: number)
+    {
+      let latency = (Date.now()-originalTime);
+      setLatency(latency);
+    }
+
+    function startPinging() {
+      setInterval(() => {
+          console.log("sending ping...")
+          socket.emit('pingServer', Date.now() );
+      }, 5000);  // Ping every 5 seconds
+    }
+
 
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
     socket.on('requestRoomResponse', onRoom)
+    socket.on('pingFromServer', onPing)
+    socket.on('latency', onLatency)
     return () => {
       socket.off('connect', onConnect)
       socket.off('disconnect', onDisconnect)
       socket.off('requestRoomResponse', onRoom)
+      socket.off('pingFromServer', onPing)
+      socket.off('latency', onLatency)
+
 
     }
-  })
+  }, [])
 
 
   return (
@@ -125,6 +151,9 @@ export default function Home()
         {/* <HomeButton name="DAILY CHALLENGE" link="/singleplayer">
           <BsFillPuzzleFill className="text-white text-[90px]"/>
         </HomeButton> */}
+      </div>
+      <div>
+        <p className="text-white">Ping: {latency} ms</p>
       </div>
     </div>
   )

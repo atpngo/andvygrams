@@ -60,6 +60,7 @@ export default function RoomPage()
     const [numPlayers, setNumPlayers] = useState(0);
     const [opponentReady, setOpponentReady] = useState(false);
     const [ready, setReady] = useState(false)
+    const [latency, setLatency] = useState(0);
     const router = useRouter();
     const [waitingForAcknowledgement, setWaitingForAcknowledgement] = useState(false)
     const [waitingForGameData, setWaitingForGameData] = useState(true)
@@ -296,6 +297,7 @@ export default function RoomPage()
             setIsConnected(false);
         }
 
+
         function onEvent(value: any) {
             setEvents((prev: any) => [...prev, value]);
         }
@@ -314,6 +316,7 @@ export default function RoomPage()
 
         function onOpponentReady()
         {
+            console.log("YO! MY OPPONENT IS")
             setOpponentReady(true)
         }
 
@@ -324,6 +327,7 @@ export default function RoomPage()
 
         function onDataReady(res : any)
         {
+            console.log("readying pog pog pog")
             setWaitingForGameData(false)
             setLetters(res[0])
             setConstLetters(res[0])
@@ -389,6 +393,16 @@ export default function RoomPage()
             stopCountdown();
         }
 
+        function onPing()
+        {
+            socket.emit("pong");
+        }
+
+        function onLatency(serverLatency: number)
+        {
+            setLatency(serverLatency);   
+        }
+
 
         socket.on('connect', onConnect)
         socket.on('disconnect', onDisconnect)
@@ -402,6 +416,8 @@ export default function RoomPage()
         socket.on('opponentLeft', onOpponentLeft)
         socket.on('opponentWantsToPlayAgain', onOpponentWantsToPlayAgain)
         socket.on('resetAndGetReady', onResetAndGetReady)
+        socket.on('ping', onPing)
+        socket.on('latency', onLatency)
 
         return () => {
             socket.off('connect', onConnect)
@@ -416,6 +432,9 @@ export default function RoomPage()
             socket.off('opponentLeft', onOpponentLeft)
             socket.off('opponentWantsToPlayAgain', onOpponentWantsToPlayAgain)
             socket.off('resetAndGetReady', onResetAndGetReady)
+            socket.off('ping', onPing)
+            socket.off('latency', onLatency)
+
 
         }
 
@@ -616,6 +635,7 @@ export default function RoomPage()
                                     <p>OPPONENT SCORE:</p>
                                     <AnimatedNumber current={opponentPrevPoints} next={opponentPoints}/>
                                 </div>
+                                <div><p>{latency.toFixed(2)} ms</p></div>
                             </div>
                         </Container>
                     </div>
