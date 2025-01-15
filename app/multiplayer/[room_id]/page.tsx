@@ -6,7 +6,6 @@ import { motion } from "framer-motion"
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTimer } from "@/app/hooks/useTimer";
-import { useCDTimer } from '@/app/hooks/useCDTimer';
 import Container from '@/app/components/Container';
 import { useSpring, animated } from "react-spring"; 
 import ShuffleIcon from '@mui/icons-material/Shuffle';
@@ -263,12 +262,12 @@ export default function RoomPage()
     // TODO: also this should be a server-side thing...
 
     // 3, 2, 1 Countdown timer
-    const {countdownSeconds, startCountdown, stopCountdown} = useCDTimer((stopCountdown: () => void) => {
+    const {seconds: countdownSeconds, start: startCountdown, stop: stopCountdown} = useTimer((stop: () => void) => {
         setIsCountingDown(false);
         setGame(true);
         stopCountdown();
         start();
-    }, 3)
+    }, 3);
 
 
     useEffect(() => {
