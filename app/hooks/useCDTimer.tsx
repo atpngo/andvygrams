@@ -14,11 +14,19 @@ export const useCDTimer = (
   initialSeconds: number = 0,
   initiallyRunning: boolean = false,
 ) => {
+  const [totalSeconds, setTotalSeconds] = useState(initialSeconds);
   const [countdownSeconds, setCountdownSeconds] = useState(initialSeconds);
   const [running, setRunning] = useState(initiallyRunning);
-  const startCountdown = () => setRunning(true);
+  const [initialTime, setInitialTime] = useState(Date.now());
+  const startCountdown = () => {
+    setRunning(true);
+    setInitialTime(Date.now());
+  }
   const pause = () => setRunning(false);
-  const reset = () => setCountdownSeconds(initialSeconds);
+  const reset = () => {
+    setCountdownSeconds(initialSeconds);
+    setInitialTime(Date.now());
+  }
   const stopCountdown = () => {
     pause();
     reset();
@@ -29,7 +37,8 @@ export const useCDTimer = (
     () => (running ? setCountdownSeconds((seconds) => {
         if (seconds > 0)
         {
-            return seconds - 1;
+          const elapsedSeconds = Math.floor((Date.now() - initialTime)/1000);
+          return totalSeconds - elapsedSeconds;
         }
         if (seconds == 0)
         {

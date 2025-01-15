@@ -14,11 +14,20 @@ export const useTimer = (
   initialSeconds: number = 0,
   initiallyRunning: boolean = false,
 ) => {
+  const [totalSeconds, setTotalSeconds] = useState(initialSeconds);
   const [seconds, setSeconds] = useState(initialSeconds);
   const [running, setRunning] = useState(initiallyRunning);
-  const start = () => setRunning(true);
+  const [initialTime, setInitialTime] = useState(Date.now());
+  const start = () => { 
+    setRunning(true);
+    setInitialTime(Date.now());
+  }
   const pause = () => setRunning(false);
-  const reset = () => setSeconds(initialSeconds);
+  const reset = () => {
+    setSeconds(initialSeconds) 
+    setInitialTime(Date.now());
+  }
+
   const stop = () => {
     pause();
     reset();
@@ -29,7 +38,8 @@ export const useTimer = (
     () => (running ? setSeconds((seconds) => {
         if (seconds > 0)
         {
-            return seconds - 1;
+            const elapsedSeconds = Math.floor((Date.now() - initialTime)/1000);
+            return totalSeconds - elapsedSeconds;
         }
         if (seconds == 0)
         {
